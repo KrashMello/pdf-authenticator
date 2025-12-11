@@ -10,9 +10,8 @@ export class SignatureService {
 
   constructor() {
     const keysPath = path.join(process.cwd(), 'keys');
-
-    this.privateKey = fs.readFileSync(keysPath + '/private.key', 'utf8');
-    this.publicKey = fs.readFileSync(keysPath + '/public.key', 'utf8');
+    this.privateKey = fs.readFileSync(path.join(keysPath, 'private.key'), 'utf8');
+    this.publicKey = fs.readFileSync(path.join(keysPath, 'public.key'), 'utf8');
   }
 
   generateHash(pdfBuffer: Buffer): string {
@@ -22,11 +21,10 @@ export class SignatureService {
   signPDF(pdfBuffer: Buffer): { hash: string; signature: string } {
     const hash = this.generateHash(pdfBuffer);
 
-    const signature = crypto.sign(
-      'sha256',
-      Buffer.from(hash),
-      this.privateKey,
-    );
+    const signature = crypto.sign('sha256', Buffer.from(hash, 'hex'), {
+      key: this.privateKey,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
+    });
 
     return {
       hash,
@@ -34,18 +32,13 @@ export class SignatureService {
     };
   }
 
-  verifyPDF(
-    pdfBuffer: Buffer,
-    signature: string,
-    hash: string,
-  ): boolean {
+  verifyPDF(pdfBuffer: Buffer, signature: string, hash: string): boolean {
     const currentHash = this.generateHash(pdfBuffer);
-
     if (currentHash !== hash) return false;
 
     return crypto.verify(
       'sha256',
-      Buffer.from(hash),
+      Buffer.from(hash, 'hex'),
       this.publicKey,
       Buffer.from(signature, 'base64'),
     );
