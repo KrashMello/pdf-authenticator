@@ -1,4 +1,10 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SignatureService } from './signature.service';
 import { SignPdfDto } from '../dto/sign-pdf.dto';
@@ -62,7 +68,10 @@ export class SignatureController {
 
   @Post('verify')
   @UseInterceptors(FileInterceptor('file'))
-  verify(@UploadedFile() file: Express.Multer.File, @Body() body: VerifyPdfDto) {
+  verify(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: VerifyPdfDto,
+  ) {
     const { hash, signature, pdfBase64 } = body;
 
     if (!hash || hash.length !== 64) {
