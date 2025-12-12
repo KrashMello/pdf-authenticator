@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SignatureModule } from './signature/signature.module';
 
 @Module({
-  imports: [SignatureModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, 
+    }),
+    SignatureModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
